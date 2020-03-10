@@ -4,6 +4,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
 from django.views import generic
+from django.utils import timezone
+
 
 """
 def index(request):
@@ -17,12 +19,12 @@ def index(request):
 	
 	return HttpResponse(template.render(context, request))
 """
-class Index_view(generic.ListView):
+class IndexView(generic.ListView):
 	template_name = "polls/index.html"
 	context_object_name = "latest_question_list"
 
 	def get_queryset(self):
-		return Question.objects.order_by("-pub_date")[:5]
+		return Question.objects.filter(pub_date__lte=timezone.now()).order_by("pub_date")[:5]
 
 """
 def detail(request, question_id):
@@ -36,9 +38,11 @@ def detail(request, question_id):
 	return render(request, 'polls/detail.html', {'question': question})
 """
 
-class Detail_view(generic.DetailView):
+class DetailView(generic.DetailView):
 	model = Question
 	template_name = "polls/detail.html"
+	def get_queryset(self):
+		return Question.objects.filter(pub_date__lte=timezone.now())
 
 """
 def results(request, question_id):
@@ -49,7 +53,7 @@ def results(request, question_id):
 	return render(request, "polls/results.html", context={"question" : question})
 """
 
-class Results_view(generic.DetailView):
+class ResultsView(generic.DetailView):
 	model = Question
 	template_name = "polls/results.html"
 
